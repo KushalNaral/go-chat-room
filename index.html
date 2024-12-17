@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title></title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="/home/kushal/Personal/go/game-of-life/htmx.min.js"></script>
+</head>
+
+<body>
+    <div>
+        <div>websocket test</div>
+        <div>
+            <input type="text" id="messageInput" name="input" value="" />
+        </div>
+        <button onclick="sendMessage()">Send</button>
+        <div id="messages"></div>
+    </div>
+</body>
+
+<script>
+    let ws;
+
+    function connect() {
+        ws = new WebSocket("ws://localhost:3000/ws");
+        ws.onopen = function () {
+            console.log("Connected to WebSocket server");
+        };
+
+        ws.onmessage = function (event) {
+            let messageDisplay = document.getElementById("messages");
+            messageDisplay.innerHTML += `<p>${event.data}</p>`;
+        };
+
+        ws.onclose = function () {
+            console.log("WebSocket connection closed, retrying...");
+            setTimeout(connect, 1000); // Reconnect after 1 second
+        };
+
+        ws.onerror = function (error) {
+            console.error("WebSocket error:", error);
+        };
+    }
+
+    function sendMessage() {
+        let input = document.getElementById("messageInput");
+        let message = input.value;
+        ws.send(message);
+        input.value = "";
+    }
+    connect();
+</script>
+
+</html>
